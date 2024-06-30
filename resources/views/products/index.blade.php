@@ -15,6 +15,7 @@
                 <div class="mb-4">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="h3">{{ __('Список товаров') }}</span>
+                        <a href="{{ route('products.create') }}">{{ __('Добавить товар') }}</a>
                     </div>
                     <table class="table table-striped table-hover">
                         <thead>
@@ -25,17 +26,19 @@
                             <th scope="col">{{ __('Остаток') }}</th>
                             <th scope="col">{{ __('Сумма') }}</th>
                             <th scope="col">{{ __('Склад') }}</th>
+                            <th scope="col">{{ __('Действие') }}</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($products as $product)
-                            <tr>
+                            <tr class="position-relative">
                                 <th scope="row">{{ $product->id }}</th>
                                 <td>{{ $product->product_name }}</td>
                                 <td>{{ $product->price }}</td>
                                 <td>{{ $product->stock }}</td>
                                 <td>{{ $product->price * $product->stock }}</td>
                                 <td>{{ $product->warehouse_name }}</td>
+                                <td><a class="stretched-link" href="{{ route('products.edit', ['product_id' => $product->id]) }}">{{ __('Изменить') }}</a></td>
                             </tr>
                         @endforeach
                         </tbody>

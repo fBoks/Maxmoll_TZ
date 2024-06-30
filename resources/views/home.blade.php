@@ -18,6 +18,55 @@
             <div class="col-12">
                 <div class="mb-4">
                     <div class="d-flex align-items-center justify-content-between">
+                        <span class="h3">{{ __('Список заказов') }}</span>
+                        @if(!empty($orders))
+                            <a href="{{ route('orders') }}">{{ __('Показать все') }}</a>
+                        @endif
+                    </div>
+                    @if(!empty($orders))
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">{{ __('Клиент') }}</th>
+                                <th scope="col">{{ __('Создан') }}</th>
+                                <th scope="col">{{ __('Завершен') }}</th>
+                                <th scope="col">{{ __('Склад') }}</th>
+                                <th scope="col">{{ __('Статус') }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($orders as $order)
+                                <tr class="position-relative
+                                    @php
+                                        if($order->status === 'completed') echo('table-success');
+                                        if($order->status === 'canceled') echo('table-secondary');
+                                    @endphp
+                                ">
+                                    <th scope="row">{{ $order->id }}</th>
+                                    <td>{{ $order->customer }}</td>
+                                    <td>{{ $order->created_at }}</td>
+                                    <td>{{ $order->completed_at ?? '-' }}</td>
+                                    <td>{{ $order->warehouse_name }}</td>
+                                    <td>{{ $order->status }}</td>
+                                </tr>
+                            @endforeach
+                            <tr>
+                                <th scope="row">...</th>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    @else
+                        <p>{{ __('Заказов нет') }}</p>
+                    @endif
+                </div>
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-between">
                         <span class="h3">{{ __('Товары') }}</span>
                         <a href="{{ route('products') }}">{{ __('Показать все') }}</a>
                     </div>
@@ -49,6 +98,7 @@
                             <td>...</td>
                             <td>...</td>
                             <td>...</td>
+                            <td>...</td>
                         </tr>
                         </tbody>
                     </table>
@@ -72,6 +122,10 @@
                                 <td>{{ $warehouse->name }}</td>
                             </tr>
                         @endforeach
+                        <tr>
+                            <th scope="row">...</th>
+                            <td>...</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>

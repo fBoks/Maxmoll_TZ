@@ -1,4 +1,4 @@
-@props(['button-text' => 'Подтвердить', 'id' => null])
+@props(['button_text' => 'Подтвердить', 'id' => null])
 
 <div class="modal fade" id="{{ $id }}" tabindex="-1" aria-labelledby="confirmationLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -13,8 +13,8 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
             <x-form {{ $attributes }}>
-                <x-button type="submit" class="bg-danger border-danger" >
-                    {{ __('Удалить') }}
+                <x-button type="submit" class="bg-primary border-primary" >
+                    {{ $button_text }}
                 </x-button>
             </x-form>
         </div>

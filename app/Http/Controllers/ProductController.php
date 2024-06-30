@@ -25,7 +25,12 @@ class ProductController extends Controller
         return view('products.index', compact('products'));
     }
 
-    public function edit() {
+    public function create()
+    {
+        echo 'Добавить товар';
+    }
+
+    public function edit($id) {
         $products = Product::query()
             ->join('stocks', 'stocks.product_id', '=', 'products.id')
             ->join('warehouses', 'warehouses.id', '=', 'stocks.warehouse_id')
@@ -40,6 +45,6 @@ class ProductController extends Controller
                 ]
             );
 
-        return view('products.index', compact('products'));
+        return view('products.edit', compact('products'));
     }
 }

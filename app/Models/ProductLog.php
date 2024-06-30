@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class ProductLog extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'count',
+        'status_id'
+    ];
 }

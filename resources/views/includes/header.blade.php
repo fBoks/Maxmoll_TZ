@@ -6,10 +6,10 @@
                     <a class="navbar-brand" href="{{ route('home') }}">{{ __('Главная') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('products') }}">{{ __('Товары') }}</a>
+                    <a class="nav-link" href="{{ route('orders')  }}">{{ __('Заказы') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('orders')  }}">{{ __('Заказы') }}</a>
+                    <a class="nav-link" href="{{ route('products') }}">{{ __('Товары') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('warehouses')  }}">{{ __('Склады') }}</a>
