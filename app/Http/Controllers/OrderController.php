@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductLog;
+use App\Models\Stock;
 use App\Models\Warehouse;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -26,42 +28,41 @@ class OrderController extends Controller
         $orderByColumn = 'orders.id';
         $sortOrder = 'asc';
 
-        if ($request->input('idSort')){
+        if ($request->input('idSort')) {
             $sortBy = 'idSort';
             $orderByColumn = 'orders.id';
             $sortOrder = $request->input('idSort');
         }
 
-        if ($request->input('clientSort')){
+        if ($request->input('clientSort')) {
             $sortBy = 'clientSort';
             $orderByColumn = 'orders.customer';
             $sortOrder = $request->input('clientSort');
         }
 
-        if ($request->input('createdAtSort')){
+        if ($request->input('createdAtSort')) {
             $sortBy = 'createdAtSort';
             $orderByColumn = 'orders.created_at';
             $sortOrder = $request->input('createdAtSort');
         }
 
-        if ($request->input('completedAtSort')){
+        if ($request->input('completedAtSort')) {
             $sortBy = 'completedAtSort';
             $orderByColumn = 'orders.completed_at';
             $sortOrder = $request->input('completedAtSort');
         }
 
-        if ($request->input('warehouseSort')){
+        if ($request->input('warehouseSort')) {
             $sortBy = 'warehouseSort';
             $orderByColumn = 'warehouses.name';
             $sortOrder = $request->input('warehouseSort');
         }
 
-        if ($request->input('statusSort')){
+        if ($request->input('statusSort')) {
             $sortBy = 'statusSort';
             $orderByColumn = 'orders.status';
             $sortOrder = $request->input('statusSort');
         }
-
 
 
         $orders = Order::query()
@@ -87,7 +88,15 @@ class OrderController extends Controller
 
         $warehouses = Warehouse::all();
 
-        $products = Product::all();
+        $products = Product::query()
+            ->join('stocks', 'stocks.product_id', '=', 'products.id')
+            ->where('stocks.stock', '>', 0)
+            ->orderBy('products.id')
+            ->get([
+                'products.id as id',
+                'products.name as name',
+                'stocks.stock as stock'
+            ]);
 
         $orderItems = OrderItem::query()
             ->join('products', 'products.id', '=', 'order_items.product_id')
@@ -108,6 +117,7 @@ class OrderController extends Controller
     public function update(Request $request, $id, $status = null)
     {
         if ($status) {
+            $oldStatus = Order::query()->where('id', $id)->value('status');
             $completed_at = $status === 'completed' ? now() : null;
             Order::query()->where('id', $id)->update([
                 'status' => $status,
@@ -116,7 +126,36 @@ class OrderController extends Controller
 
             alert(__('Статус обновлен'));
 
+            if ($oldStatus === 'completed') {
+                return redirect()->route('orders.edit', $id);
+            }
+
             if ($status === 'active') {
+                $stocks = OrderItem::query()->where('order_id', $id)->get();
+                foreach ($stocks as $stock) {
+                    $stockCurrent = Stock::query()->where('product_id', $stock->product_id)->value('stock');
+                    if ($stockCurrent < $stock->count) {
+                        Order::query()->where('id', $id)->update([
+                            'status' => $oldStatus,
+                        ]);
+
+                        alert(__('Недостаточно на складе'), 'error');
+                        return redirect()->route('orders.edit', $id);
+                    }
+                    ProductLog::log($id, $stock->product_id, $stock->count);
+                    Stock::query()->where('product_id', $stock->product_id)->decrement('stock', $stock->count);
+                }
+
+                return redirect()->route('orders.edit', $id);
+            }
+
+            if ($status === 'canceled') {
+                $stocks = OrderItem::query()->where('order_id', $id)->get();
+                foreach ($stocks as $stock) {
+                    ProductLog::log($id, $stock->product_id, $stock->count, 'Приход');
+                    Stock::query()->where('product_id', $stock->product_id)->increment('stock', $stock->count);
+                }
+
                 return redirect()->route('orders.edit', $id);
             }
 
@@ -141,7 +180,15 @@ class OrderController extends Controller
     {
         $warehouses = Warehouse::all();
 
-        $products = Product::all();
+        $products = Product::query()
+            ->join('stocks', 'stocks.product_id', '=', 'products.id')
+            ->where('stocks.stock', '>', 0)
+            ->orderBy('products.id')
+            ->get([
+                'products.id as id',
+                'products.name as name',
+                'stocks.stock as stock'
+            ]);
 
         return view('orders.create', compact('warehouses', 'products'));
     }
@@ -155,6 +202,13 @@ class OrderController extends Controller
             'count' => ['required', 'integer', 'min:1'],
         ]);
 
+        $product_stock_count = Stock::query()->where('product_id', $validated['product'])->get('stock')->toArray(
+        )[0]['stock'];
+        if ($validated['count'] > $product_stock_count) {
+            alert(__('Недостаточно товара на складе. Всего: ' . $product_stock_count), 'danger');
+            return back()->withInput();
+        }
+
         $order = Order::query()->create([
             'customer' => $validated['customer'],
             'warehouse_id' => $validated['warehouse'],
@@ -167,8 +221,11 @@ class OrderController extends Controller
             'count' => $validated['count'],
         ]);
 
-        alert(__('Заказ создан'));
+        Stock::query()->where('product_id', $validated['product'])->decrement('stock', $validated['count']);
 
+        ProductLog::log($order->id, $validated['product'], $validated['count']);
+
+        alert(__('Заказ создан'));
         return redirect()->route('orders.edit', $order->id);
     }
 

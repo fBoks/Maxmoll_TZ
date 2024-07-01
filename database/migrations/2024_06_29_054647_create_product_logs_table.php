@@ -18,11 +18,10 @@ return new class extends Migration
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
             $table->integer('count');
-            $table->unsignedBigInteger('status_id');
+            $table->string('status');
 
             $table->foreign('order_id')->references('id')->on('orders');
             $table->foreign('product_id')->references('id')->on('products');
-            $table->foreign('status_id')->references('id')->on('product_log_statuses');
         });
     }
 

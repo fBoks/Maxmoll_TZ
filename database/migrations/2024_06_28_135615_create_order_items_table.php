@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->integer('count');
 
+            $table->unique(['order_id', 'product_id']);
             $table->foreign('order_id')->references('id')->on('orders');
             $table->foreign('product_id')->references('id')->on('products');
         });

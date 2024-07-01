@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('page.title', 'Главная страница')
+@section('page.title', 'Товары')
 
 @section('main.content')
     <div class="text-center mb-5">

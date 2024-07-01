@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
             WarehouseSeeder::class,
             ProductSeeder::class,
             StockSeeder::class,
-            ProductLogStatusSeeder::class,
         ]);
     }
 }

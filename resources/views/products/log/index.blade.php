@@ -1,11 +1,11 @@
 @extends('layouts.main')
 
-@section('page.title', 'Заказы')
+@section('page.title', 'Движения')
 
 @section('main.content')
     <div class="text-center mb-5">
         <div class="h2">
-            {{ __('Заказы') }}
+            {{ __('Движения') }}
         </div>
     </div>
 
@@ -15,11 +15,10 @@
                 <div class="mb-4">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center gap-3">
-                            <span class="h3">{{ __('Список заказов') }}</span>
-                            <a href="{{ route('orders') }}"
+                            <span class="h3">{{ __('Список движений товаров') }}</span>
+                            <a href="{{ route('products.log') }}"
                                class="align-content-center text-decoration-none">{{ __('Сбросить фильтр')  }}</a>
                         </div>
-                        <a href="{{ route('orders.create') }}">{{ __('Добавить заказ') }}</a>
                     </div>
                     <table class="table table-hover">
                         <thead>
@@ -30,67 +29,56 @@
                                     {{ $sortOrder === 'asc' ? '↓' : '↑' }}
                                 @endif
                             </th>
-                            <th scope="col" class="th-hover-overlay" id="clientSortButton"
+                            <th scope="col" class="th-hover-overlay" id="orderSortButton"
                                 data-sort="{{ $sortOrder }}">
-                                {{ __('Клиент') }}
-                                @if($sortBy === 'clientSort')
+                                {{ __('Заказ') }}
+                                @if($sortBy === 'orderSort')
                                     {{ $sortOrder === 'asc' ? '↓' : '↑' }}
                                 @endif
                             </th>
-                            <th scope="col" class="th-hover-overlay" id="createdAtSortButton"
+                            <th scope="col" class="th-hover-overlay" id="productSortButton"
                                 data-sort="{{ $sortOrder }}">
-                                {{ __('Создан') }}
-                                @if($sortBy === 'createdAtSort')
+                                {{ __('Товар') }}
+                                @if($sortBy === 'productSort')
                                     {{ $sortOrder === 'asc' ? '↓' : '↑' }}
                                 @endif
                             </th>
-                            <th scope="col" class="th-hover-overlay" id="completedAtSortButton"
+                            <th scope="col" class="th-hover-overlay" id="countSortButton"
                                 data-sort="{{ $sortOrder }}">
-                                {{ __('Завершен') }}
-                                @if($sortBy === 'completedAtSort')
+                                {{ __('Количество') }}
+                                @if($sortBy === 'countSort')
                                     {{ $sortOrder === 'asc' ? '↓' : '↑' }}
                                 @endif
                             </th>
-                            <th scope="col" class="th-hover-overlay" id="warehouseSortButton"
+                            <th scope="col" class="th-hover-overlay" id="statusSortButton"
                                 data-sort="{{ $sortOrder }}">
-                                {{ __('Склад') }}
-                                @if($sortBy === 'warehouseSort')
-                                    {{ $sortOrder === 'asc' ? '↓' : '↑' }}
-                                @endif
-                            </th>
-                            <th scope="col" class="th-hover-overlay" id="statusSortButton" data-sort="{{ $sortOrder }}">
-                                {{ __('Статус') }}
+                                {{ __('Вид') }}
                                 @if($sortBy === 'statusSort')
                                     {{ $sortOrder === 'asc' ? '↓' : '↑' }}
                                 @endif
                             </th>
-                            <th scope="col">{{ __('Действие') }}</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($orders as $order)
+                        @foreach($productLogs as $log)
                             <tr class="position-relative
                                     @php
-                                        if($order->status === 'completed') echo('table-success');
-                                        if($order->status === 'canceled') echo('table-secondary');
+                                        if($log->status === 'Расход') echo('table-secondary');
+                                        if($log->status === 'Приход') echo('table-success');
                                     @endphp
                                 ">
-                                <th scope="row">{{ $order->id }}</th>
-                                <td>{{ $order->customer }}</td>
-                                <td>{{ $order->created_at }}</td>
-                                <td>{{ $order->completed_at ?? '-' }}</td>
-                                <td>{{ $order->warehouse_name }}</td>
-                                <td>{{ strtoupper($order->status) }}</td>
-                                <td><a class="stretched-link text-decoration-none text-primary"
-                                       href="{{ route('orders.edit', ['order_id' => $order->id]) }}">{{ __('Изменить') }}</a>
-                                </td>
+                                <th scope="row">{{ $log->id }}</th>
+                                <td>Заказ №{{ $log->order }}</td>
+                                <td>{{ $log->product }}</td>
+                                <td>{{ $log->count }}</td>
+                                <td>{{ $log->status }}</td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
 
                     <div class="d-flex">
-                        {{ $orders->links('vendor.pagination.custom') }}
+                        {{ $productLogs->links('vendor.pagination.custom') }}
                     </div>
                 </div>
             </div>
@@ -103,10 +91,9 @@
         document.addEventListener('click', function (event) {
             if (
                 event.target.id === 'idSortButton' ||
-                event.target.id === 'clientSortButton' ||
-                event.target.id === 'createdAtSortButton' ||
-                event.target.id === 'completedAtSortButton' ||
-                event.target.id === 'warehouseSortButton' ||
+                event.target.id === 'orderSortButton' ||
+                event.target.id === 'productSortButton' ||
+                event.target.id === 'countSortButton' ||
                 event.target.id === 'statusSortButton') {
                 const currentSort = event.target.getAttribute('data-sort');
                 const newSort = currentSort === 'asc' ? 'desc' : 'asc';

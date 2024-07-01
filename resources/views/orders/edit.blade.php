@@ -1,3 +1,5 @@
+@props(['order' => $order])
+
 @extends('layouts.main')
 
 @section('page.title', 'Заявка - редактирование')
@@ -15,7 +17,14 @@
                 <div class="mb-4">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center gap-3">
-                            <span class="h3">{{ __('Заказ #') . $id+1 }}</span>
+                            <span class="h3">{{ __('Заказ #') . $id }}</span>
+                            <span class="badge rounded-pill
+                                    @php
+                                        if($order->status === 'active') echo(' bg-primary ');
+                                        if($order->status === 'completed') echo(' bg-success ');
+                                        if($order->status === 'canceled') echo(' bg-secondary ');
+                                    @endphp
+                                text-text-dark">{{ strtoupper($order->status) }}</span>
                             <a href="{{ route('orders.create') }}">{{ __('Новый заказ') }}</a>
                         </div>
                         @if($order->status === 'active')
@@ -101,20 +110,19 @@
                         </div>
                     </x-form>
 
-
                     <x-form action="{{ route('orders.item.store', ['order_id' => $id]) }}" method="POST">
                         <div class="row">
                             <div class="col-md-5 col-12 mb-3">
                                 <x-label required>{{ __('Товар') }}</x-label>
                                 <select name="product"
-                                        class="form-select" {{ $order->status === 'active' ?: 'disabled readonly' }}>
+                                        class="form-select" {{ $order->status === 'active' ? '' : 'disabled readonly' }}>
                                     <option value="">{{ __('Выберите товар') }}</option>
                                     @foreach ($products as $product)
                                         @if(empty($orderItems) || !$orderItems->contains('product_id', $product->id))
                                             {{ $selected = null }}
 
                                             <option {{ $selected }} value="{{ $product->id }}">
-                                                {{ $product->name }}
+                                                {{ $product->name }} ({{ $product->stock }} шт.)
                                             </option>
                                         @endif
                                     @endforeach

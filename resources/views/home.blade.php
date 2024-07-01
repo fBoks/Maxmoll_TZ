@@ -19,11 +19,11 @@
                 <div class="mb-4">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="h3">{{ __('Список заказов') }}</span>
-                        @if(!empty($orders))
-                            <a href="{{ route('orders') }}">{{ __('Показать все') }}</a>
+                        @if(!empty($orders->count()))
+                            <a href="{{ route('orders') }}" {{ !empty($orders) ?: 'disabled' }}>{{ __('Показать все') }}</a>
                         @endif
                     </div>
-                    @if(!empty($orders))
+                    @if(!empty($orders->count()))
                         <table class="table table-hover">
                             <thead>
                             <tr>

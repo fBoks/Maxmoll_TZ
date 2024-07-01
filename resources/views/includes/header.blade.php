@@ -14,6 +14,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('warehouses')  }}">{{ __('Склады') }}</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('products.log')  }}">{{ __('Движения') }}</a>
+                </li>
             </ul>
         </nav>
     </div>

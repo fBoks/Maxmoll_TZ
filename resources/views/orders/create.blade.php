@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('page.title', 'Заявка - создание')
+@section('page.title', 'Заказ - создание')
 
 @section('main.content')
     <div class="text-center mb-5">
@@ -54,7 +54,7 @@
                                         {{ $selected = null }}
 
                                         <option {{ $selected }} value="{{ $product->id }}">
-                                            {{ $product->name }}
+                                            {{ $product->name }} ({{ $product->stock }} шт.)
                                         </option>
                                     @endforeach
                                 </select>
